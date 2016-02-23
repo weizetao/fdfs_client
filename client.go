@@ -156,6 +156,17 @@ func (this *FdfsClient) UploadByBuffer(filebuffer []byte, fileExtName string) (*
 	return store.storageUploadByBuffer(tc, storeServ, filebuffer, fileExtName)
 }
 
+func (this *FdfsClient) SyncFileNotify(storeServ *StorageServer, fileSize int64, fileName string) error {
+
+	storagePool, err := this.getStoragePool(storeServ.ipAddr, storeServ.port)
+	if err != nil {
+		return err
+	}
+	store := &StorageClient{storagePool}
+
+	return store.storageSyncFile(storeServ, fileSize, fileName)
+}
+
 func (this *FdfsClient) UploadSlaveByFilename(filename, remoteFileId, prefixName string) (*UploadFileResponse, error) {
 	if err := fdfsCheckFile(filename); err != nil {
 		return nil, errors.New(err.Error() + "(uploading)")

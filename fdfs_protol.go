@@ -231,6 +231,27 @@ func (this *uploadFileRequest) marshal() ([]byte, error) {
 	return buffer.Bytes(), nil
 }
 
+type syncFileRequest struct {
+	fileSize int64
+	fileName string
+}
+
+func (this *syncFileRequest) marshal() ([]byte, error) {
+	buffer := new(bytes.Buffer)
+	binary.Write(buffer, binary.BigEndian, this.fileSize)
+
+	// 6 bit fileExtName
+	fileExtNameBytes := bytes.NewBufferString(this.fileName).Bytes()
+	for i := 0; i < 6; i++ {
+		if i >= len(fileExtNameBytes) {
+			buffer.WriteByte(byte(0))
+		} else {
+			buffer.WriteByte(fileExtNameBytes[i])
+		}
+	}
+	return buffer.Bytes(), nil
+}
+
 type uploadSlaveFileRequest struct {
 	masterFilenameLen int64
 	fileSize          int64

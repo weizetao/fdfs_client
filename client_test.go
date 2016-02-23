@@ -22,7 +22,7 @@ func TestParserFdfsConfig(t *testing.T) {
 }
 func TestNewFdfsClientByTracker(t *testing.T) {
 	tracker := &Tracker{
-		[]string{"10.0.1.32"},
+		[]string{"10.180.92.50"},
 		22122,
 	}
 	_, err := NewFdfsClientByTracker(tracker)
@@ -45,6 +45,20 @@ func TestUploadByFilename(t *testing.T) {
 	t.Log(uploadResponse.GroupName)
 	t.Log(uploadResponse.RemoteFileId)
 	fdfsClient.DeleteFile(uploadResponse.RemoteFileId)
+}
+
+func TestSyncByFilename(t *testing.T) {
+
+	fdfsClient := FdfsClient{}
+
+	storeServ := StorageServer{}
+	storeServ.ipAddr = "10.140.80.93"
+	storeServ.port = 23000
+
+	err := fdfsClient.SyncFileNotify(&storeServ, 1000, "/data/slot0/data/09/0B/73/TYoBAFbFa3YAAAF1CXt0cTWw1_o1679991")
+	if err != nil {
+		t.Errorf("SyncByfilename error %s", err.Error())
+	}
 }
 
 func TestUploadByBuffer(t *testing.T) {

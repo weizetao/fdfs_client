@@ -203,6 +203,44 @@ func (this *StorageClient) storageDeleteFile(tc *TrackerClient, storeServ *Stora
 	return nil
 }
 
+func (this *StorageClient) storageSyncFile(storeServ *StorageServer, size int64, filename string) error {
+	var (
+		conn   net.Conn
+		reqBuf []byte
+		err    error
+	)
+
+	conn, err = this.pool.Get()
+	defer conn.Close()
+	if err != nil {
+		return err
+	}
+
+	th := &trackerHeader{}
+	th.cmd = 52
+	fileNameLen := len(filename)
+	th.pkgLen = int64(8 + fileNameLen)
+	th.sendHeader(conn)
+
+	req := &syncFileRequest{}
+	req.fileSize = size
+	req.fileName = filename
+	reqBuf, err = req.marshal()
+	if err != nil {
+		logger.Warnf("syncFileRequest.marshal error :%s", err.Error())
+		return err
+	}
+	TcpSendData(conn, reqBuf)
+	logger.Warnf("syncFileRequest.marshal send data ")
+
+	th.recvHeader(conn)
+	if th.status != 0 {
+		return Errno{int(th.status)}
+	}
+	logger.Warnf("syncFileRequest.marshal recv header ")
+	return nil
+}
+
 func (this *StorageClient) storageDownloadToFile(tc *TrackerClient,
 	storeServ *StorageServer, localFilename string, offset int64,
 	downloadSize int64, remoteFilename string) (*DownloadFileResponse, error) {
