@@ -240,14 +240,9 @@ func (this *syncFileRequest) marshal() ([]byte, error) {
 	buffer := new(bytes.Buffer)
 	binary.Write(buffer, binary.BigEndian, this.fileSize)
 
-	// 6 bit fileExtName
 	fileExtNameBytes := bytes.NewBufferString(this.fileName).Bytes()
-	for i := 0; i < 6; i++ {
-		if i >= len(fileExtNameBytes) {
-			buffer.WriteByte(byte(0))
-		} else {
-			buffer.WriteByte(fileExtNameBytes[i])
-		}
+	for i := 0; i < len(fileExtNameBytes); i++ {
+		buffer.WriteByte(fileExtNameBytes[i])
 	}
 	return buffer.Bytes(), nil
 }
